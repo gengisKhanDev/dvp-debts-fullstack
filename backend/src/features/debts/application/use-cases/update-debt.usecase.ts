@@ -1,9 +1,14 @@
 import { DebtRepository } from '../../domain/ports/debt-repository.port';
 import { Money } from '../../domain/value-objects/money.vo';
+import type { CachePort } from '../ports/cache.port';
+import { debtKeys } from '../cache-keys';
 import { UpdateDebtCommand } from '../dto/update-debt.command';
 
 export class UpdateDebtUseCase {
-	constructor(private readonly debts: DebtRepository) { }
+	constructor(
+		private readonly debts: DebtRepository,
+		private readonly cache: CachePort,
+	) { }
 
 	async execute(cmd: UpdateDebtCommand) {
 		const d = await this.debts.findById(cmd.debtId);
@@ -22,6 +27,12 @@ export class UpdateDebtUseCase {
 		d.updatedAt = now;
 
 		await this.debts.save(d);
+
+		await this.cache.del([
+			...debtKeys.listsToInvalidate(cmd.debtorUserId),
+			debtKeys.detail(cmd.debtId),
+		]);
+
 		return { ok: true };
 	}
 }

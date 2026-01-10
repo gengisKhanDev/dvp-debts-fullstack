@@ -2,10 +2,15 @@ import { randomUUID } from 'crypto';
 import { Debt } from '../../domain/entities/debt.entity';
 import { DebtRepository } from '../../domain/ports/debt-repository.port';
 import { Money } from '../../domain/value-objects/money.vo';
+import { debtKeys } from '../cache-keys';
+import type { CachePort } from '../ports/cache.port';
 import { CreateDebtCommand } from '../dto/create-debt.command';
 
 export class CreateDebtUseCase {
-	constructor(private readonly debts: DebtRepository) { }
+	constructor(
+		private readonly debts: DebtRepository,
+		private readonly cache: CachePort,
+	) { }
 
 	async execute(cmd: CreateDebtCommand) {
 		const now = new Date();
@@ -26,6 +31,9 @@ export class CreateDebtUseCase {
 		);
 
 		await this.debts.save(debt);
+
+		// ✅ invalidar listas del usuario (cache-aside)
+		await this.cache.del(debtKeys.listsToInvalidate(cmd.debtorUserId));
 
 		return { id: debt.id };
 	}
