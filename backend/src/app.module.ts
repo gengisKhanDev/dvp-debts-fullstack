@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { HealthModule } from './features/health/health.module';
 import { AuthModule } from './features/auth/auth.module';
+import { DebtsModule } from './features/debts/debts.module';
 
 @Module({
 	imports: [
@@ -26,7 +27,7 @@ import { AuthModule } from './features/auth/auth.module';
 				synchronize: true, // ✅ ok para prueba técnica / ❌ no recomendado en prod
 			}),
 		}),
-
+		DebtsModule,
 		HealthModule,
 		AuthModule,
 	],
