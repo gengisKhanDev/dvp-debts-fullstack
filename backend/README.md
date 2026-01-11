@@ -1,6 +1,6 @@
 # Debts API (NestJS) — Clean Architecture (Purista) + Feature-based (Screaming)
 
-Backend de ejemplo “enterprise-ready” para una prueba técnica fullstack:
+Backend
 
 - **Auth (JWT)**: register / login / me
 - **Debts**: crear, listar, obtener, actualizar, pagar, eliminar + reglas de negocio
@@ -41,7 +41,7 @@ Backend de ejemplo “enterprise-ready” para una prueba técnica fullstack:
 
 ## Arquitectura
 
-### Clean Architecture (purista)
+### Clean Architecture
 
 - **Domain**: reglas de negocio puras (sin Nest/TypeORM/Redis).
 - **Application**: casos de uso (orquestan dominio) + puertos.
@@ -307,19 +307,3 @@ npm run start:dev
   - host/puerto según `docker-compose.yml`
 
 ---
-
-## Checklist “Yo debo” (demo entrevista)
-
-1) Yo debo levantar `docker compose up -d`
-2) Yo debo crear `.env`
-3) Yo debo correr `npm run start:dev`
-4) Yo debo abrir `/docs`
-5) Yo debo ejecutar:
-   - `POST /auth/register`
-   - `POST /auth/login`
-   - Authorize con Bearer token
-6) Yo debo probar:
-   - `POST /debts`
-   - `GET /debts`
-   - `POST /debts/:id/pay`
-   - `PATCH /debts/:id` (debe fallar si está pagada)
