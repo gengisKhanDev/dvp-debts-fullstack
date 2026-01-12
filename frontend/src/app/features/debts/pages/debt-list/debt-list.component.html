@@ -2,19 +2,30 @@
 	<div class="flex items-center justify-between">
 		<h1 class="text-xl font-semibold">Mis deudas</h1>
 
-		<div class="flex gap-2 text-sm">
-			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5" (click)="setStatus('PENDING')">
-				Pendientes
-			</button>
-			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5" (click)="setStatus('PAID')">
-				Pagadas
-			</button>
-		</div>
+		<a routerLink="/debts/new" class="rounded-xl bg-white/10 px-3 py-1 hover:bg-white/15 text-sm">
+			+ Nueva deuda
+		</a>
 	</div>
 
 	@if (vm$ | async; as vm) {
+	<div class="flex gap-2 text-sm">
+		<button class="rounded-xl border px-3 py-1 hover:bg-white/5" [class.border-white/20]="vm.status === 'PENDING'"
+			[class.bg-white/10]="vm.status === 'PENDING'" [class.border-white/10]="vm.status !== 'PENDING'"
+			(click)="setStatus('PENDING')">
+			Pendientes
+		</button>
+
+		<button class="rounded-xl border px-3 py-1 hover:bg-white/5" [class.border-white/20]="vm.status === 'PAID'"
+			[class.bg-white/10]="vm.status === 'PAID'" [class.border-white/10]="vm.status !== 'PAID'"
+			(click)="setStatus('PAID')">
+			Pagadas
+		</button>
+	</div>
+
 	@if (vm.loading) {
+	<!-- Skeleton: mejor si muestras varios “cards” -->
 	<div class="space-y-3">
+		@for (_ of [1,2,3]; track _) {
 		<div class="rounded-2xl border border-white/10 p-4">
 			<ui-skeleton [width]="180" [height]="16" />
 			<div class="mt-3 space-y-2">
@@ -22,6 +33,7 @@
 				<ui-skeleton [width]="260" />
 			</div>
 		</div>
+		}
 	</div>
 	} @else {
 	@if (vm.error) {
@@ -31,7 +43,7 @@
 	} @else {
 	<div class="space-y-3">
 		@for (d of vm.debts; track d.id) {
-		<article class="rounded-2xl border border-white/10 p-4">
+		<a class="block rounded-2xl border border-white/10 p-4 hover:bg-white/5" [routerLink]="['/debts', d.id]">
 			<div class="flex items-center justify-between">
 				<div class="font-semibold">#{{ d.id }}</div>
 				<div class="text-xs opacity-70">{{ d.status }}</div>
@@ -39,7 +51,7 @@
 			<div class="mt-2 text-sm opacity-80">
 				${{ d.amount }}
 			</div>
-		</article>
+		</a>
 		} @empty {
 		<div class="rounded-2xl border border-white/10 p-4 opacity-80">
 			No hay deudas en este filtro.

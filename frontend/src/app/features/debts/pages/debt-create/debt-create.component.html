@@ -1,0 +1,63 @@
+<section class="space-y-4">
+	<div class="flex items-center justify-between">
+		<a routerLink="/debts" class="text-sm underline opacity-80">← Volver</a>
+	</div>
+
+	<h1 class="text-xl font-semibold">Crear deuda</h1>
+
+	@if (error) {
+	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
+		{{ error }}
+	</div>
+	}
+
+	<form class="space-y-4 rounded-2xl border border-white/10 p-4" [formGroup]="form" (ngSubmit)="submit()">
+
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Nombre del acreedor</label>
+			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
+				formControlName="creditorName" />
+			@if (form.controls.creditorName.touched && form.controls.creditorName.invalid) {
+			<p class="text-xs text-red-300">Este campo es requerido</p>
+			}
+		</div>
+
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Email del acreedor</label>
+			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none" type="email"
+				formControlName="creditorEmail" />
+			@if (form.controls.creditorEmail.touched && form.controls.creditorEmail.invalid) {
+			<p class="text-xs text-red-300">Email inválido</p>
+			}
+		</div>
+
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Teléfono del acreedor</label>
+			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
+				formControlName="creditorPhone" />
+			@if (form.controls.creditorPhone.touched && form.controls.creditorPhone.invalid) {
+			<p class="text-xs text-red-300">Este campo es requerido</p>
+			}
+		</div>
+
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Monto</label>
+			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none" type="number"
+				min="0.01" step="0.01" formControlName="amount" />
+			@if (form.controls.amount.touched && form.controls.amount.invalid) {
+			<p class="text-xs text-red-300">Monto debe ser mayor a 0</p>
+			}
+		</div>
+
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Descripción</label>
+			<textarea class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none" rows="3"
+				formControlName="description"></textarea>
+		</div>
+
+		<button class="rounded-xl bg-white/10 px-4 py-2 hover:bg-white/15 disabled:opacity-50" [disabled]="loading"
+			type="submit">
+			@if (loading) { Creando... } @else { Crear }
+		</button>
+	</form>
+</section>
