@@ -5,6 +5,12 @@
 			(click)="reload()">
 			Recargar
 		</button>
+		@if (id$ | async; as id) {
+		<a class="rounded-xl border border-white/10 px-4 py-2 hover:bg-white/5 text-sm"
+			[routerLink]="['/debts', id, 'edit']">
+			Editar
+		</a>
+		}
 	</div>
 
 	@if (actionError) {

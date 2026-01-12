@@ -14,6 +14,7 @@
 						".dto.ts",
 						".request.ts",
 						".response.ts",
+						".responses.ts",
 						".command.ts",
 						".query.ts",
 						".result.ts",

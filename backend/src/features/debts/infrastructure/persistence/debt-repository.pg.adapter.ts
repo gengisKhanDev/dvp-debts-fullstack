@@ -68,11 +68,11 @@ export class DebtRepositoryPgAdapter implements DebtRepositoryPort {
 		const raw = await this.repo
 			.createQueryBuilder('d')
 			.select(
-				'COALESCE(SUM(CASE WHEN d.status = :pending THEN d.amount ELSE 0 END), 0)',
+				'COALESCE(SUM(CASE WHEN d.status = :pending THEN d.amountCents ELSE 0 END), 0)',
 				'pendingTotal',
 			)
 			.addSelect(
-				'COALESCE(SUM(CASE WHEN d.status = :paid THEN d.amount ELSE 0 END), 0)',
+				'COALESCE(SUM(CASE WHEN d.status = :paid THEN d.amountCents ELSE 0 END), 0)',
 				'paidTotal',
 			)
 			.addSelect(
@@ -92,8 +92,7 @@ export class DebtRepositoryPgAdapter implements DebtRepositoryPort {
 				paidCount: string;
 			}>();
 
-		// Nota: en Postgres, agregaciones (SUM/COUNT) suelen venir como string en raw results,
-		// por eso convertimos a Number. :contentReference[oaicite:2]{index=2}
+		// OJO: aquí te devuelve CENTAVOS, porque sumamos amountCents.
 		return {
 			pendingTotal: Number(raw?.pendingTotal ?? 0),
 			paidTotal: Number(raw?.paidTotal ?? 0),
