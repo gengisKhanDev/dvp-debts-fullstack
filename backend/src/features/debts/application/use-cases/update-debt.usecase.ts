@@ -1,4 +1,4 @@
-import { DebtRepository } from '../../domain/ports/debt-repository.port';
+import { DebtRepositoryPort } from '../../domain/ports/debt-repository.port';
 import { Money } from '../../domain/value-objects/money.vo';
 import type { CachePort } from '../ports/cache.port';
 import { debtKeys } from '../cache-keys';
@@ -6,7 +6,7 @@ import { UpdateDebtCommand } from '../dto/update-debt.command';
 
 export class UpdateDebtUseCase {
 	constructor(
-		private readonly debts: DebtRepository,
+		private readonly debts: DebtRepositoryPort,
 		private readonly cache: CachePort,
 	) { }
 

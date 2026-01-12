@@ -1,10 +1,10 @@
-import { DebtRepository } from '../../domain/ports/debt-repository.port';
+import { DebtRepositoryPort } from '../../domain/ports/debt-repository.port';
 import type { CachePort } from '../ports/cache.port';
 import { debtKeys } from '../cache-keys';
 
 export class GetMyDebtUseCase {
 	constructor(
-		private readonly debts: DebtRepository,
+		private readonly debts: DebtRepositoryPort,
 		private readonly cache: CachePort,
 		private readonly ttlSeconds: number,
 	) { }

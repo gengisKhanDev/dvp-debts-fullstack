@@ -67,3 +67,26 @@ export class DebtResponse {
 	 */
 	paidAt!: string | null;
 }
+
+export class DebtSummaryResponse {
+	/** Cantidad de deudas pendientes */
+	pendingCount!: number;
+
+	/** Cantidad de deudas pagadas */
+	paidCount!: number;
+
+	/** Total de deudas (pending + paid) */
+	totalCount!: number;
+
+	/** Suma de amounts en PENDING */
+	pendingTotal!: number;
+
+	/** Suma de amounts en PAID */
+	paidTotal!: number;
+
+	/** Suma total (pendingTotal + paidTotal) */
+	overallTotal!: number;
+
+	/** Saldo pendiente (equivale a pendingTotal) */
+	pendingBalance!: number;
+}

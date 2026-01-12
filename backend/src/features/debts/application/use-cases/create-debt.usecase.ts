@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Debt } from '../../domain/entities/debt.entity';
-import { DebtRepository } from '../../domain/ports/debt-repository.port';
+import { DebtRepositoryPort } from '../../domain/ports/debt-repository.port';
 import { Money } from '../../domain/value-objects/money.vo';
 import { debtKeys } from '../cache-keys';
 import type { CachePort } from '../ports/cache.port';
@@ -8,7 +8,7 @@ import { CreateDebtCommand } from '../dto/create-debt.command';
 
 export class CreateDebtUseCase {
 	constructor(
-		private readonly debts: DebtRepository,
+		private readonly debts: DebtRepositoryPort,
 		private readonly cache: CachePort,
 	) { }
 

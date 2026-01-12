@@ -1,0 +1,1 @@
+export const DEBT_REPOSITORY_TOKEN = Symbol('DEBT_REPOSITORY_TOKEN');

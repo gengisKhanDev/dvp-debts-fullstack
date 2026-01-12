@@ -12,8 +12,10 @@ import {
 	Req,
 	UseGuards,
 	ForbiddenException,
+	StreamableFile,
+	Res,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { Request, Response as ExpressResponse } from 'express';
 import {
 	ApiTags,
 	ApiBearerAuth,
@@ -26,27 +28,40 @@ import {
 	ApiNotFoundResponse,
 	ApiParam,
 	ApiQuery,
+	ApiProduces,
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../auth/presentation/guards/jwt-auth.guard';
+
 import { CreateDebtUseCase } from '../application/use-cases/create-debt.usecase';
 import { ListMyDebtsUseCase } from '../application/use-cases/list-my-debts.usecase';
 import { GetMyDebtUseCase } from '../application/use-cases/get-my-debt.usecase';
 import { UpdateDebtUseCase } from '../application/use-cases/update-debt.usecase';
 import { PayDebtUseCase } from '../application/use-cases/pay-debt.usecase';
 import { DeleteDebtUseCase } from '../application/use-cases/delete-debt.usecase';
+import { GetDebtsSummaryUseCase } from '../application/use-cases/get-debts-summary.usecase';
+
 import { CreateDebtRequest } from './dto/create-debt.request';
 import { UpdateDebtRequest } from './dto/update-debt.request';
+import { ExportDebtsQuery } from './dto/export-debts.query';
+
 import { OkResponse } from '../../../common/presentation/swagger/ok.response';
 import { ApiErrorResponse } from '../../../common/presentation/swagger/api-error.response';
-import { CreateDebtResponse, DebtResponse } from './dto/debt.responses';
+
+import {
+	CreateDebtResponse,
+	DebtResponse,
+	DebtSummaryResponse,
+} from './dto/debt.responses';
+
+import { toCsv } from '../../../common/presentation/csv/csv.util';
 
 type AuthenticatedRequest = Request & { user: { userId: string; email: string } };
 
 @UseGuards(JwtAuthGuard)
 @Controller('debts')
 @ApiTags('debts')
-@ApiBearerAuth('access-token')
+@ApiBearerAuth()
 export class DebtsController {
 	constructor(
 		private readonly createUC: CreateDebtUseCase,
@@ -55,7 +70,75 @@ export class DebtsController {
 		private readonly updateUC: UpdateDebtUseCase,
 		private readonly payUC: PayDebtUseCase,
 		private readonly deleteUC: DeleteDebtUseCase,
+		private readonly summaryUC: GetDebtsSummaryUseCase,
 	) { }
+
+	// ✅ static routes BEFORE :id
+	@Get('export')
+	@ApiOperation({ summary: 'Exporta tus deudas en JSON o CSV' })
+	@ApiProduces('application/json', 'text/csv')
+	@ApiOkResponse({ description: 'Archivo JSON/CSV (download)' })
+	async exportMyDebts(
+		@Req() req: AuthenticatedRequest,
+		@Query() q: ExportDebtsQuery,
+		@Res({ passthrough: true }) res: ExpressResponse,
+	): Promise<StreamableFile> {
+		const format = q.format ?? 'json';
+		const status = q.status;
+
+		const debts = await this.listUC.execute({ debtorUserId: req.user.userId, status });
+
+		const date = new Date().toISOString().slice(0, 10);
+		const statusPart = (status ?? 'ALL').toLowerCase();
+		const filename = `debts-${statusPart}-${date}.${format}`;
+
+		if (format === 'csv') {
+			const rows = debts.map((d: any) => ({
+				id: d.id,
+				creditorName: d.creditorName,
+				creditorEmail: d.creditorEmail ?? '',
+				creditorPhone: d.creditorPhone ?? '',
+				amount: d.amount,
+				description: d.description ?? '',
+				status: d.status,
+				createdAt: d.createdAt,
+				updatedAt: d.updatedAt,
+				paidAt: d.paidAt ?? '',
+			}));
+
+			const csv = toCsv(rows, [
+				'id',
+				'creditorName',
+				'creditorEmail',
+				'creditorPhone',
+				'amount',
+				'description',
+				'status',
+				'createdAt',
+				'updatedAt',
+				'paidAt',
+			]);
+
+			res.set({
+				'Content-Type': 'text/csv; charset=utf-8',
+				'Content-Disposition': `attachment; filename="${filename}"`,
+			});
+			return new StreamableFile(Buffer.from(csv, 'utf8'));
+		}
+
+		res.set({
+			'Content-Type': 'application/json; charset=utf-8',
+			'Content-Disposition': `attachment; filename="${filename}"`,
+		});
+		return new StreamableFile(Buffer.from(JSON.stringify(debts, null, 2), 'utf8'));
+	}
+
+	@Get('summary')
+	@ApiOperation({ summary: 'Agregados de mis deudas (totales y saldo pendiente)' })
+	@ApiOkResponse({ type: DebtSummaryResponse })
+	async summary(@Req() req: AuthenticatedRequest) {
+		return this.summaryUC.execute(req.user.userId);
+	}
 
 	@Post()
 	@ApiOperation({ summary: 'Create a new debt (PENDING)' })
@@ -97,8 +180,6 @@ export class DebtsController {
 		try {
 			return await this.getUC.execute(req.user.userId, id);
 		} catch (e: any) {
-			// Tip pro: pásales mensaje para que Swagger/UI muestre tu code de dominio:
-			// throw new NotFoundException('DebtNotFound')
 			if (e?.message === 'DebtNotFound') throw new NotFoundException('DebtNotFound');
 			if (e?.message === 'Forbidden') throw new ForbiddenException('Forbidden');
 			throw new BadRequestException(e?.message ?? 'BadRequest');

@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Debt, DebtStatus } from '../../domain/entities/debt.entity';
-import { DebtRepository } from '../../domain/ports/debt-repository.port';
+import { DebtRepositoryPort, DebtSummary } from '../../domain/ports/debt-repository.port';
 import { Money } from '../../domain/value-objects/money.vo';
 import { DebtOrmEntity } from './debt.orm-entity';
 
 @Injectable()
-export class DebtRepositoryPgAdapter implements DebtRepository {
+export class DebtRepositoryPgAdapter implements DebtRepositoryPort {
 	constructor(
 		@InjectRepository(DebtOrmEntity)
 		private readonly repo: Repository<DebtOrmEntity>,
@@ -63,5 +63,42 @@ export class DebtRepositoryPgAdapter implements DebtRepository {
 			row.updatedAt,
 			row.paidAt,
 		);
+	}
+	async getSummaryByDebtor(debtorUserId: string): Promise<DebtSummary> {
+		const raw = await this.repo
+			.createQueryBuilder('d')
+			.select(
+				'COALESCE(SUM(CASE WHEN d.status = :pending THEN d.amount ELSE 0 END), 0)',
+				'pendingTotal',
+			)
+			.addSelect(
+				'COALESCE(SUM(CASE WHEN d.status = :paid THEN d.amount ELSE 0 END), 0)',
+				'paidTotal',
+			)
+			.addSelect(
+				'COALESCE(SUM(CASE WHEN d.status = :pending THEN 1 ELSE 0 END), 0)',
+				'pendingCount',
+			)
+			.addSelect(
+				'COALESCE(SUM(CASE WHEN d.status = :paid THEN 1 ELSE 0 END), 0)',
+				'paidCount',
+			)
+			.where('d.debtorUserId = :debtorUserId', { debtorUserId })
+			.setParameters({ pending: 'PENDING', paid: 'PAID' })
+			.getRawOne<{
+				pendingTotal: string;
+				paidTotal: string;
+				pendingCount: string;
+				paidCount: string;
+			}>();
+
+		// Nota: en Postgres, agregaciones (SUM/COUNT) suelen venir como string en raw results,
+		// por eso convertimos a Number. :contentReference[oaicite:2]{index=2}
+		return {
+			pendingTotal: Number(raw?.pendingTotal ?? 0),
+			paidTotal: Number(raw?.paidTotal ?? 0),
+			pendingCount: Number(raw?.pendingCount ?? 0),
+			paidCount: Number(raw?.paidCount ?? 0),
+		};
 	}
 }

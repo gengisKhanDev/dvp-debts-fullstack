@@ -17,6 +17,9 @@ import { GetMyDebtUseCase } from './application/use-cases/get-my-debt.usecase';
 import { UpdateDebtUseCase } from './application/use-cases/update-debt.usecase';
 import { PayDebtUseCase } from './application/use-cases/pay-debt.usecase';
 import { DeleteDebtUseCase } from './application/use-cases/delete-debt.usecase';
+import { GetDebtsSummaryUseCase } from './application/use-cases/get-debts-summary.usecase';
+
+import type { DebtRepositoryPort } from './domain/ports/debt-repository.port';
 
 export const DEBTS_TOKENS = {
 	DebtRepo: 'DEBTS/DebtRepo',
@@ -50,10 +53,9 @@ function getCacheTtlSeconds(cfg: ConfigService): number {
 			useFactory: async (cfg: ConfigService) => {
 				const client = createClient({ url: getRedisUrl(cfg) });
 
-				// recomendado por Redis docs
-				client.on('error', (err) => console.error('Redis Client Error', err)); // :contentReference[oaicite:2]{index=2}
+				client.on('error', (err) => console.error('Redis Client Error', err));
 
-				await client.connect(); // :contentReference[oaicite:3]{index=3}
+				await client.connect();
 				return client;
 			},
 		},
@@ -62,41 +64,49 @@ function getCacheTtlSeconds(cfg: ConfigService): number {
 		{
 			provide: DEBTS_TOKENS.Cache,
 			inject: [DEBTS_TOKENS.RedisClient],
-			useFactory: (client): CachePort => new RedisCacheAdapter(client),
+			// tip: si vuelven errores de tipos por redis, cambia "client" a "any"
+			useFactory: (client: any): CachePort => new RedisCacheAdapter(client),
 		},
 
 		// --- UseCases (Clean: se crean por factory) ---
 		{
 			provide: CreateDebtUseCase,
 			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache],
-			useFactory: (repo, cache: CachePort) => new CreateDebtUseCase(repo, cache),
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort) => new CreateDebtUseCase(repo, cache),
 		},
 		{
 			provide: ListMyDebtsUseCase,
 			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache, ConfigService],
-			useFactory: (repo, cache: CachePort, cfg: ConfigService) =>
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort, cfg: ConfigService) =>
 				new ListMyDebtsUseCase(repo, cache, getCacheTtlSeconds(cfg)),
 		},
 		{
 			provide: GetMyDebtUseCase,
 			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache, ConfigService],
-			useFactory: (repo, cache: CachePort, cfg: ConfigService) =>
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort, cfg: ConfigService) =>
 				new GetMyDebtUseCase(repo, cache, getCacheTtlSeconds(cfg)),
 		},
 		{
 			provide: UpdateDebtUseCase,
 			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache],
-			useFactory: (repo, cache: CachePort) => new UpdateDebtUseCase(repo, cache),
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort) => new UpdateDebtUseCase(repo, cache),
 		},
 		{
 			provide: PayDebtUseCase,
 			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache],
-			useFactory: (repo, cache: CachePort) => new PayDebtUseCase(repo, cache),
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort) => new PayDebtUseCase(repo, cache),
 		},
 		{
 			provide: DeleteDebtUseCase,
 			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache],
-			useFactory: (repo, cache: CachePort) => new DeleteDebtUseCase(repo, cache),
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort) => new DeleteDebtUseCase(repo, cache),
+		},
+
+		// --- Summary (Agregación) ---
+		{
+			provide: GetDebtsSummaryUseCase,
+			inject: [DEBTS_TOKENS.DebtRepo],
+			useFactory: (repo: DebtRepositoryPort) => new GetDebtsSummaryUseCase(repo),
 		},
 	],
 })
