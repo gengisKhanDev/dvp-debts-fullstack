@@ -16,10 +16,7 @@ export class DeleteDebtUseCase {
 		d.ensureMutable();
 		await this.debts.deleteById(debtId);
 
-		await this.cache.del([
-			...debtKeys.listsToInvalidate(debtorUserId),
-			debtKeys.detail(debtId),
-		]);
+		await this.cache.del(debtKeys.invalidateOnWrite(debtorUserId, debtId));
 
 		return { ok: true };
 	}

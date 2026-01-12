@@ -32,8 +32,7 @@ export class CreateDebtUseCase {
 
 		await this.debts.save(debt);
 
-		// ✅ invalidar listas del usuario (cache-aside)
-		await this.cache.del(debtKeys.listsToInvalidate(cmd.debtorUserId));
+		await this.cache.del(debtKeys.readsToInvalidateOnWrite(cmd.debtorUserId));
 
 		return { id: debt.id };
 	}

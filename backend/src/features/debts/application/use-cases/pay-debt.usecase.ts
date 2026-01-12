@@ -17,10 +17,7 @@ export class PayDebtUseCase {
 
 		await this.debts.save(d);
 
-		await this.cache.del([
-			...debtKeys.listsToInvalidate(debtorUserId),
-			debtKeys.detail(debtId),
-		]);
+		await this.cache.del(debtKeys.invalidateOnWrite(debtorUserId, debtId));
 
 		return { ok: true };
 	}

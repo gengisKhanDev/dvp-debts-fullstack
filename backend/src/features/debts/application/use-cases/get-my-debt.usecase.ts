@@ -10,13 +10,10 @@ export class GetMyDebtUseCase {
 	) { }
 
 	async execute(debtorUserId: string, debtId: string) {
-		const key = debtKeys.detail(debtId);
+		const key = debtKeys.detail(debtorUserId, debtId);
 
 		const cached = await this.cache.get<any>(key);
-		if (cached) {
-			if (cached.debtorUserId && cached.debtorUserId !== debtorUserId) throw new Error('Forbidden');
-			return cached;
-		}
+		if (cached) return cached;
 
 		const d = await this.debts.findById(debtId);
 		if (!d) throw new Error('DebtNotFound');

@@ -28,10 +28,7 @@ export class UpdateDebtUseCase {
 
 		await this.debts.save(d);
 
-		await this.cache.del([
-			...debtKeys.listsToInvalidate(cmd.debtorUserId),
-			debtKeys.detail(cmd.debtId),
-		]);
+		await this.cache.del(debtKeys.invalidateOnWrite(cmd.debtorUserId, cmd.debtId));
 
 		return { ok: true };
 	}

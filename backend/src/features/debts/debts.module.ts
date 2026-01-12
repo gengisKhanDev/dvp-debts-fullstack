@@ -39,6 +39,12 @@ function getCacheTtlSeconds(cfg: ConfigService): number {
 	return Number.isFinite(ttl) && ttl > 0 ? ttl : 30;
 }
 
+function getSummaryCacheTtlSeconds(cfg: ConfigService): number {
+	const raw = cfg.get<string>('SUMMARY_CACHE_TTL_SECONDS') ?? '10';
+	const ttl = Number(raw);
+	return Number.isFinite(ttl) && ttl > 0 ? ttl : 10;
+}
+
 @Module({
 	imports: [TypeOrmModule.forFeature([DebtOrmEntity])],
 	controllers: [DebtsController],
@@ -105,9 +111,11 @@ function getCacheTtlSeconds(cfg: ConfigService): number {
 		// --- Summary (Agregación) ---
 		{
 			provide: GetDebtsSummaryUseCase,
-			inject: [DEBTS_TOKENS.DebtRepo],
-			useFactory: (repo: DebtRepositoryPort) => new GetDebtsSummaryUseCase(repo),
+			inject: [DEBTS_TOKENS.DebtRepo, DEBTS_TOKENS.Cache, ConfigService],
+			useFactory: (repo: DebtRepositoryPort, cache: CachePort, cfg: ConfigService) =>
+				new GetDebtsSummaryUseCase(repo, cache, getSummaryCacheTtlSeconds(cfg)),
 		},
+
 	],
 })
 export class DebtsModule { }
