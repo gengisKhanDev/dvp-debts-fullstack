@@ -1,0 +1,52 @@
+<section class="space-y-4">
+	<div class="flex items-center justify-between">
+		<h1 class="text-xl font-semibold">Mis deudas</h1>
+
+		<div class="flex gap-2 text-sm">
+			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5" (click)="setStatus('PENDING')">
+				Pendientes
+			</button>
+			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5" (click)="setStatus('PAID')">
+				Pagadas
+			</button>
+		</div>
+	</div>
+
+	@if (vm$ | async; as vm) {
+	@if (vm.loading) {
+	<div class="space-y-3">
+		<div class="rounded-2xl border border-white/10 p-4">
+			<ui-skeleton [width]="180" [height]="16" />
+			<div class="mt-3 space-y-2">
+				<ui-skeleton [width]="320" />
+				<ui-skeleton [width]="260" />
+			</div>
+		</div>
+	</div>
+	} @else {
+	@if (vm.error) {
+	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
+		{{ vm.error }}
+	</div>
+	} @else {
+	<div class="space-y-3">
+		@for (d of vm.debts; track d.id) {
+		<article class="rounded-2xl border border-white/10 p-4">
+			<div class="flex items-center justify-between">
+				<div class="font-semibold">#{{ d.id }}</div>
+				<div class="text-xs opacity-70">{{ d.status }}</div>
+			</div>
+			<div class="mt-2 text-sm opacity-80">
+				${{ d.amount }}
+			</div>
+		</article>
+		} @empty {
+		<div class="rounded-2xl border border-white/10 p-4 opacity-80">
+			No hay deudas en este filtro.
+		</div>
+		}
+	</div>
+	}
+	}
+	}
+</section>

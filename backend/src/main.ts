@@ -5,6 +5,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
+	app.enableCors({
+		origin: 'http://localhost:4200',
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+		allowedHeaders: ['Content-Type', 'Authorization'],
+		credentials: true,
+	});
+
 	const config = new DocumentBuilder()
 		.setTitle('Debts API')
 		.setDescription('API para autenticación y gestión de deudas (Clean Architecture + Feature-based).')

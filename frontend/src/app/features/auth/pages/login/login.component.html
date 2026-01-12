@@ -1,0 +1,33 @@
+<section class="mx-auto mt-16 max-w-sm rounded-2xl border border-white/10 p-6">
+	<h1 class="text-xl font-semibold">Login</h1>
+
+	@if (error) {
+	<div class="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm">
+		{{ error }}
+	</div>
+	}
+
+	<form class="mt-6 space-y-3" [formGroup]="form" (ngSubmit)="submit()">
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Email</label>
+			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
+				formControlName="email" type="email" />
+		</div>
+
+		<div class="space-y-1">
+			<label class="text-sm opacity-80">Password</label>
+			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
+				formControlName="password" type="password" />
+		</div>
+
+		<button class="w-full rounded-xl bg-white/10 px-4 py-2 hover:bg-white/15 disabled:opacity-50"
+			[disabled]="loading" type="submit">
+			@if (loading) { Entrando... } @else { Entrar }
+		</button>
+
+		<p class="text-sm opacity-80">
+			¿No tienes cuenta?
+			<a class="underline" routerLink="/auth/register">Registrarse</a>
+		</p>
+	</form>
+</section>
