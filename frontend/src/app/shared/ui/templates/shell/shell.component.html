@@ -1,5 +1,5 @@
 <ui-top-nav [loading]="!auth.ready()" [email]="auth.user()?.email ?? null" (logout)="onLogout()" />
 
-<main class="page">
-  <router-outlet />
+<main class="container mx-auto max-w-5xl px-4 py-6">
+	<router-outlet />
 </main>
