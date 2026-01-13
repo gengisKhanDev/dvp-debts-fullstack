@@ -1,59 +1,124 @@
-# Frontend
+# Debts — Fullstack (Frontend)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.5.
+Aplicación para gestionar deudas personales con autenticación, listado por estado, detalle, edición, marcación como pagada y exportación.
 
-## Development server
+---
 
-To start a local development server, run:
+## Requisitos
 
-```bash
-ng serve
-```
+- Node.js (LTS recomendado)
+- npm / pnpm / yarn (usa el que tengas configurado)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## Funcionalidades
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Autenticación
+- Registro
+- Login
+- Persistencia del token (storage)
+- Protección de rutas (guard)
+- Interceptores HTTP para adjuntar token y manejar errores de auth
 
-```bash
-ng generate component component-name
-```
+### Deudas
+- Listado por estado (PENDING / PAID)
+- Resumen (conteos y totales)
+- Detalle de deuda
+- Crear deuda
+- Editar deuda (restricciones si está pagada, según reglas del backend)
+- Marcar como pagada
+- Eliminar
+- Exportación (CSV / JSON)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
+## Quick start
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 1) Frontend (Angular)
 
 ```bash
-ng test
+cd frontend
+npm install
+npm start
+# o: ng serve
 ```
 
-## Running end-to-end tests
+Por defecto el front queda en:
 
-For end-to-end (e2e) testing, run:
+- `http://localhost:4200`
 
+#### Configuración de API Base URL
+
+El frontend usa un `API_BASE_URL` / token de configuración (por ejemplo `api-base-url.token.ts`)
+y/o `environments/environment*.ts`.
+
+Verifica que apunte al backend:
+
+- `http://localhost:3000`
+
+---
+
+## Comandos útiles
+
+### Frontend
 ```bash
-ng e2e
+npm start             # dev server
+npm run build         # build producción
+npm run test          # tests
+npm run lint          # lint
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+> Los scripts exactos dependen del `package.json` de cada carpeta.
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Frontend: organización y convenciones
+
+### Arquitectura
+- **Feature-first**: `features/auth`, `features/debts`
+- **Core**: auth, http, tokens, interceptores
+- **Shared UI**: componentes visuales reutilizables
+
+### UI / Atomic Design
+Los estilos y componentes reutilizables viven en:
+
+`src/app/shared/ui/`
+
+- `atoms/`: button, input, card, badge, alert, skeleton, textarea
+- `molecules/`: form-field, page-header
+- `organisms/`: top-nav
+- `templates/`: shell, home
+
+**Regla práctica:**
+- Las páginas (`features/**/pages`) componen UI usando `<ui-*>` y layout con Tailwind.
+- Los componentes `ui-*` son la “fuente de verdad” visual (consistencia).
+
+### Tailwind
+- Estilos globales mínimos en `src/styles.css` (tokens/primitivas: `.page`, `.section-title`, `.muted`, etc.)
+- Evitar “clases utilitarias” duplicadas en muchas páginas si ya existe un `ui-*` que resuelve el patrón.
+
+---
+
+## API / Contratos
+
+Los modelos de frontend viven en:
+
+- `features/auth/models`
+- `features/debts/models`
+
+Estos contratos se alinean con los DTOs/respuestas del backend:
+- `Debt`, `DebtStatus`, `DebtSummary`, requests de create/update, etc.
+
+---
+
+## Troubleshooting
+
+### `ERR_CONNECTION_REFUSED` al hacer login
+- Backend apagado o puerto distinto al configurado en el frontend.
+- Solución típica: reiniciar backend y verificar `API_BASE_URL`.
+
+### Tailwind: `Cannot apply unknown utility class ...`
+- Ocurre si se intenta `@apply` sobre una clase que Tailwind no conoce o si se aplica una clase custom dentro de otra con `@apply`.
+- Mantén `styles.css` con utilidades conocidas o estilos propios simples, y evita “encadenar” custom classes con `@apply` si tu configuración no lo soporta.
+
+---
