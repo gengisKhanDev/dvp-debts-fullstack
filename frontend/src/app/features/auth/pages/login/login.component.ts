@@ -5,10 +5,15 @@ import { finalize } from 'rxjs';
 
 import { AuthApiService } from '../../data-access/auth-api.service';
 import { TokenStorageService } from '../../../../core/auth/token-storage.service';
+import { CardComponent } from '../../../../shared/ui/atoms/card/card.component';
+import { AlertComponent } from '../../../../shared/ui/atoms/alert/alert.component';
+import { InputComponent } from '../../../../shared/ui/atoms/input/input.component';
+import { ButtonComponent } from '../../../../shared/ui/atoms/button/button.component';
+import { FormFieldComponent } from '../../../../shared/ui/molecules/form-field/form-field.component';
 
 @Component({
 	selector: 'app-login',
-	imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, CardComponent, AlertComponent, InputComponent, ButtonComponent, FormFieldComponent],
 	templateUrl: './login.component.html',
 })
 export class LoginComponent {

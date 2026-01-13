@@ -1,27 +1,5 @@
-<header class="sticky top-0 border-b border-white/10 bg-black/40 backdrop-blur">
-  <div class="mx-auto flex max-w-5xl items-center justify-between p-4">
-    <a routerLink="/debts" class="font-semibold">Debts</a>
+<ui-top-nav [loading]="!auth.ready()" [email]="auth.user()?.email ?? null" (logout)="onLogout()" />
 
-    <div class="flex items-center gap-3 text-sm">
-      @if (auth.ready()) {
-      <span class="opacity-80">{{ auth.user()?.email }}</span>
-      } @else {
-      <ui-skeleton [width]="140" [height]="14" />
-      }
-
-      <a routerLink="/debts" routerLinkActive="underline">Deudas</a>
-
-      <button
-        type="button"
-        class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5"
-        (click)="onLogout()"
-      >
-        Salir
-      </button>
-    </div>
-  </div>
-</header>
-
-<main class="mx-auto max-w-5xl p-4">
+<main class="page">
   <router-outlet />
 </main>

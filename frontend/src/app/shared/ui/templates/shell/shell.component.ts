@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { AuthService } from '../../../../core/auth/auth.service';
-import { SkeletonComponent } from '../../atoms/skeleton/skeleton.component';
+import { TopNavComponent } from '../../organisms/top-nav/top-nav.component';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, SkeletonComponent],
+  imports: [RouterOutlet, TopNavComponent],
   templateUrl: './shell.component.html',
 })
 export class ShellComponent {

@@ -1,0 +1,14 @@
+<div class="space-y-1">
+	<label class="text-sm opacity-80">
+		{{ label }}
+		@if (required) { <span class="text-red-300">*</span> }
+	</label>
+
+	<ng-content />
+
+	@if (error) {
+	<p class="text-xs text-red-300">{{ error }}</p>
+	} @else if (hint) {
+	<p class="text-xs opacity-70">{{ hint }}</p>
+	}
+</div>

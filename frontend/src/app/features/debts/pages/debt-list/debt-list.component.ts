@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { BehaviorSubject, Subject, catchError, finalize, map, of, startWith, switchMap, take } from 'rxjs';
 import { RouterLink } from '@angular/router';
+import { BehaviorSubject, Subject, catchError, finalize, map, of, startWith, switchMap, take } from 'rxjs';
 
 import { DebtsApiService } from '../../data-access/debts-api.service';
 import type { Debt, DebtStatus, DebtSummary } from '../../models/debt.models';
+
 import { SkeletonComponent } from '../../../../shared/ui/atoms/skeleton/skeleton.component';
+import { CardComponent } from '../../../../shared/ui/atoms/card/card.component';
+import { ButtonComponent } from '../../../../shared/ui/atoms/button/button.component';
+import { BadgeComponent } from '../../../../shared/ui/atoms/badge/badge.component';
+import { AlertComponent } from '../../../../shared/ui/atoms/alert/alert.component';
+import { PageHeaderComponent } from '../../../../shared/ui/molecules/page-header/page-header.component';
 
 type Vm =
 	| { loading: true; status: DebtStatus; debts: Debt[]; error: null }
@@ -17,7 +23,16 @@ type SummaryVm =
 
 @Component({
 	selector: 'app-debt-list',
-	imports: [AsyncPipe, SkeletonComponent, RouterLink],
+	imports: [
+		AsyncPipe,
+		RouterLink,
+		SkeletonComponent,
+		CardComponent,
+		ButtonComponent,
+		BadgeComponent,
+		AlertComponent,
+		PageHeaderComponent,
+	],
 	templateUrl: './debt-list.component.html',
 })
 export class DebtListComponent {
@@ -27,7 +42,6 @@ export class DebtListComponent {
 	exportLoading = false;
 	exportError: string | null = null;
 
-	// ✅ Summary: se carga al entrar y también cuando llamas reload()
 	summaryVm$ = this.refresh$.pipe(
 		startWith(void 0),
 		switchMap(() =>
@@ -45,15 +59,12 @@ export class DebtListComponent {
 		),
 	);
 
-	// ✅ Listado: como lo tienes
 	vm$ = this.status$.pipe(
 		switchMap((status) =>
 			this.api.list(status).pipe(
 				map((debts) => ({ loading: false, status, debts, error: null } as Vm)),
 				startWith({ loading: true, status, debts: [], error: null } as Vm),
-				catchError(() =>
-					of({ loading: false, status, debts: [], error: 'No se pudo cargar' } as Vm),
-				),
+				catchError(() => of({ loading: false, status, debts: [], error: 'No se pudo cargar' } as Vm)),
 			),
 		),
 	);
@@ -66,8 +77,6 @@ export class DebtListComponent {
 
 	reload() {
 		this.refresh$.next();
-		// el listado se recarga solo cuando cambia status; si quieres recargarlo también,
-		// simplemente re-emite el mismo valor:
 		this.status$.next(this.status$.getValue());
 	}
 
@@ -105,15 +114,10 @@ export class DebtListComponent {
 
 	private getFilenameFromDisposition(disposition: string | null): string | null {
 		if (!disposition) return null;
-
-		// filename="..."
 		const match = /filename="([^"]+)"/i.exec(disposition);
 		if (match?.[1]) return match[1];
-
-		// filename*=UTF-8''...
 		const matchStar = /filename\*\=UTF-8''([^;]+)/i.exec(disposition);
 		if (matchStar?.[1]) return decodeURIComponent(matchStar[1]);
-
 		return null;
 	}
 }

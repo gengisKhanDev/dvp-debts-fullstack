@@ -1,33 +1,34 @@
-<section class="mx-auto mt-16 max-w-sm rounded-2xl border border-white/10 p-6">
-	<h1 class="text-xl font-semibold">Login</h1>
+<section class="mx-auto mt-16 max-w-sm">
+	<ui-card>
+		<h1 class="text-xl font-semibold">Login</h1>
+		<p class="mt-1 text-sm opacity-70">Entra para ver y administrar tus deudas.</p>
 
-	@if (error) {
-	<div class="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm">
-		{{ error }}
-	</div>
-	}
-
-	<form class="mt-6 space-y-3" [formGroup]="form" (ngSubmit)="submit()">
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Email</label>
-			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
-				formControlName="email" type="email" />
+		@if (error) {
+		<div class="mt-4">
+			<ui-alert tone="danger" [message]="error" />
 		</div>
+		}
 
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Password</label>
-			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
-				formControlName="password" type="password" />
-		</div>
+		<form class="mt-6 space-y-3" [formGroup]="form" (ngSubmit)="submit()">
+			<ui-form-field label="Email" [required]="true"
+				[error]="form.controls.email.touched && form.controls.email.invalid ? 'Email inválido' : null">
+				<ui-input type="email" formControlName="email" placeholder="tu@email.com" autocomplete="email" />
+			</ui-form-field>
 
-		<button class="w-full rounded-xl bg-white/10 px-4 py-2 hover:bg-white/15 disabled:opacity-50"
-			[disabled]="loading" type="submit">
-			@if (loading) { Entrando... } @else { Entrar }
-		</button>
+			<ui-form-field label="Password" [required]="true"
+				[error]="form.controls.password.touched && form.controls.password.invalid ? 'Mínimo 6 caracteres' : null">
+				<ui-input type="password" formControlName="password" placeholder="••••••••"
+					autocomplete="current-password" />
+			</ui-form-field>
 
-		<p class="text-sm opacity-80">
-			¿No tienes cuenta?
-			<a class="underline" routerLink="/auth/register">Registrarse</a>
-		</p>
-	</form>
+			<ui-button class="w-full" variant="soft" type="submit" [disabled]="loading">
+				@if (loading) { Entrando... } @else { Entrar }
+			</ui-button>
+
+			<p class="text-sm opacity-80">
+				¿No tienes cuenta?
+				<a class="underline" routerLink="/auth/register">Registrarse</a>
+			</p>
+		</form>
+	</ui-card>
 </section>

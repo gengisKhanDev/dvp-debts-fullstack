@@ -1,127 +1,123 @@
-<section class="space-y-4">
-	<div class="flex items-center justify-between gap-3">
-		<h1 class="text-xl font-semibold">Mis deudas</h1>
-
-		<div class="flex items-center gap-2">
-			<a routerLink="/debts/new" class="rounded-xl bg-white/10 px-3 py-1 hover:bg-white/15 text-sm">
+<section class="page space-y-4">
+	<ui-page-header title="Mis deudas" subtitle="Filtra, revisa el resumen y exporta cuando lo necesites.">
+		<div actions class="flex flex-wrap gap-2">
+			<a routerLink="/debts/new"
+				class="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-medium hover:bg-white/15 transition">
 				+ Nueva deuda
 			</a>
 
-			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5 text-sm disabled:opacity-50"
-				type="button" [disabled]="exportLoading" (click)="export('csv')">
-				@if (exportLoading) { Exportando... } @else { Export CSV }
-			</button>
-
-			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5 text-sm disabled:opacity-50"
-				type="button" [disabled]="exportLoading" (click)="export('json')">
-				@if (exportLoading) { Exportando... } @else { Export JSON }
-			</button>
-
-			<button class="rounded-xl border border-white/10 px-3 py-1 hover:bg-white/5 text-sm" type="button"
-				(click)="reload()">
-				Recargar
-			</button>
+			<ui-button variant="ghost" size="md" (click)="reload()">Recargar</ui-button>
 		</div>
-	</div>
+	</ui-page-header>
 
 	@if (exportError) {
-	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
-		{{ exportError }}
-	</div>
+	<ui-alert tone="danger" [message]="exportError" />
 	}
 
-	<!-- SUMMARY -->
 	@if (summaryVm$ | async; as s) {
-	@if (s.loading) {
-	<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-		@for (_ of [1,2,3,4]; track _) {
-		<div class="rounded-2xl border border-white/10 p-4 space-y-2">
-			<ui-skeleton [width]="120" [height]="12" />
-			<ui-skeleton [width]="160" [height]="18" />
-		</div>
-		}
-	</div>
-	} @else {
-	@if (s.error) {
-	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
-		{{ s.error }}
-	</div>
-	} @else {
-	<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-		<div class="rounded-2xl border border-white/10 p-4">
-			<div class="text-xs opacity-70">Pendientes</div>
-			<div class="mt-1 text-lg font-semibold">{{ s.summary!.pendingCount }}</div>
-			<div class="mt-1 text-sm opacity-80">${{ s.summary!.pendingTotal }}</div>
+	<ui-card padding="md">
+		<div class="flex items-center justify-between gap-3">
+			<div class="font-semibold">Resumen</div>
+			<div class="flex gap-2">
+				<ui-button variant="ghost" size="sm" [disabled]="exportLoading" (click)="export('json')">
+					@if (exportLoading) { Exportando... } @else { Export JSON }
+				</ui-button>
+				<ui-button variant="ghost" size="sm" [disabled]="exportLoading" (click)="export('csv')">
+					@if (exportLoading) { Exportando... } @else { Export CSV }
+				</ui-button>
+			</div>
 		</div>
 
-		<div class="rounded-2xl border border-white/10 p-4">
-			<div class="text-xs opacity-70">Pagadas</div>
-			<div class="mt-1 text-lg font-semibold">{{ s.summary!.paidCount }}</div>
-			<div class="mt-1 text-sm opacity-80">${{ s.summary!.paidTotal }}</div>
+		<div class="mt-4">
+			@if (s.loading) {
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+				@for (_ of [1,2,3,4,5,6]; track _) {
+				<ui-card padding="sm">
+					<ui-skeleton [width]="90" [height]="12" />
+					<div class="mt-2"><ui-skeleton [width]="120" [height]="16" /></div>
+				</ui-card>
+				}
+			</div>
+			} @else {
+			@if (s.error) {
+			<ui-alert tone="danger" [message]="s.error" />
+			} @else {
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+				<ui-card padding="sm">
+					<div class="muted">Pendientes</div>
+					<div class="text-lg font-semibold">{{ s.summary?.pendingCount ?? 0 }}</div>
+				</ui-card>
+				<ui-card padding="sm">
+					<div class="muted">Pagadas</div>
+					<div class="text-lg font-semibold">{{ s.summary?.paidCount ?? 0 }}</div>
+				</ui-card>
+				<ui-card padding="sm">
+					<div class="muted">Total</div>
+					<div class="text-lg font-semibold">{{ s.summary?.totalCount ?? 0 }}</div>
+				</ui-card>
+				<ui-card padding="sm">
+					<div class="muted">Pendiente ($)</div>
+					<div class="text-lg font-semibold">{{ s.summary?.pendingTotal ?? 0 }}</div>
+				</ui-card>
+				<ui-card padding="sm">
+					<div class="muted">Pagado ($)</div>
+					<div class="text-lg font-semibold">{{ s.summary?.paidTotal ?? 0 }}</div>
+				</ui-card>
+				<ui-card padding="sm">
+					<div class="muted">Saldo ($)</div>
+					<div class="text-lg font-semibold">{{ s.summary?.pendingBalance ?? 0 }}</div>
+				</ui-card>
+			</div>
+			}
+			}
 		</div>
-
-		<div class="rounded-2xl border border-white/10 p-4">
-			<div class="text-xs opacity-70">Total</div>
-			<div class="mt-1 text-lg font-semibold">{{ s.summary!.totalCount }}</div>
-			<div class="mt-1 text-sm opacity-80">${{ s.summary!.overallTotal }}</div>
-		</div>
-
-		<div class="rounded-2xl border border-white/10 p-4">
-			<div class="text-xs opacity-70">Saldo pendiente</div>
-			<div class="mt-1 text-lg font-semibold">${{ s.summary!.pendingBalance }}</div>
-		</div>
-	</div>
+	</ui-card>
 	}
-	}
-	}
 
-	<!-- LIST -->
 	@if (vm$ | async; as vm) {
-	<div class="flex gap-2 text-sm">
-		<button class="rounded-xl border px-3 py-1 hover:bg-white/5" [class.border-white/20]="vm.status === 'PENDING'"
-			[class.bg-white/10]="vm.status === 'PENDING'" [class.border-white/10]="vm.status !== 'PENDING'"
-			(click)="setStatus('PENDING')">
+	<div class="flex flex-wrap items-center gap-2">
+		<ui-button size="sm" [variant]="vm.status === 'PENDING' ? 'soft' : 'ghost'" (click)="setStatus('PENDING')">
 			Pendientes
-		</button>
+		</ui-button>
 
-		<button class="rounded-xl border px-3 py-1 hover:bg-white/5" [class.border-white/20]="vm.status === 'PAID'"
-			[class.bg-white/10]="vm.status === 'PAID'" [class.border-white/10]="vm.status !== 'PAID'"
-			(click)="setStatus('PAID')">
+		<ui-button size="sm" [variant]="vm.status === 'PAID' ? 'soft' : 'ghost'" (click)="setStatus('PAID')">
 			Pagadas
-		</button>
+		</ui-button>
+
+		<ui-badge tone="neutral">Filtro: {{ vm.status }}</ui-badge>
 	</div>
 
 	@if (vm.loading) {
 	<div class="space-y-3">
 		@for (_ of [1,2,3]; track _) {
-		<div class="rounded-2xl border border-white/10 p-4">
+		<ui-card padding="md">
 			<ui-skeleton [width]="180" [height]="16" />
 			<div class="mt-3 space-y-2">
 				<ui-skeleton [width]="320" />
 				<ui-skeleton [width]="260" />
 			</div>
-		</div>
+		</ui-card>
 		}
 	</div>
 	} @else {
 	@if (vm.error) {
-	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
-		{{ vm.error }}
-	</div>
+	<ui-alert tone="danger" [message]="vm.error" />
 	} @else {
 	<div class="space-y-3">
 		@for (d of vm.debts; track d.id) {
-		<a class="block rounded-2xl border border-white/10 p-4 hover:bg-white/5" [routerLink]="['/debts', d.id]">
-			<div class="flex items-center justify-between">
-				<div class="font-semibold">#{{ d.id }}</div>
-				<div class="text-xs opacity-70">{{ d.status }}</div>
-			</div>
-			<div class="mt-2 text-sm opacity-80">${{ d.amount }}</div>
+		<a class="block" [routerLink]="['/debts', d.id]">
+			<ui-card padding="md" extraClass="hover:bg-white/10 transition">
+				<div class="flex items-center justify-between gap-3">
+					<div class="font-semibold truncate">Deuda #{{ d.id }}</div>
+					<ui-badge [tone]="d.status === 'PAID' ? 'success' : 'warning'">{{ d.status }}</ui-badge>
+				</div>
+				<div class="mt-2 text-sm text-white/80">
+					Monto: <span class="font-semibold">${{ d.amount }}</span>
+				</div>
+			</ui-card>
 		</a>
 		} @empty {
-		<div class="rounded-2xl border border-white/10 p-4 opacity-80">
-			No hay deudas en este filtro.
-		</div>
+		<ui-card padding="md" extraClass="text-white/80">No hay deudas en este filtro.</ui-card>
 		}
 	</div>
 	}

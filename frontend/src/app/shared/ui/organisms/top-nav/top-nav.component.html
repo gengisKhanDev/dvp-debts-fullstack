@@ -1,0 +1,30 @@
+<header class="sticky top-0 z-10 border-b border-white/10 bg-slate-950/60 backdrop-blur">
+	<div class="container mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+		<a routerLink="/debts" class="flex items-center gap-2 text-base font-semibold tracking-tight hover:opacity-90">
+			<span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">💸</span>
+			<span>Debts</span>
+		</a>
+
+		<nav class="flex items-center gap-2 text-sm">
+			@if (loading) {
+			<div class="hidden sm:block">
+				<ui-skeleton [width]="160" [height]="14" />
+			</div>
+			} @else {
+			@if (email) {
+			<span
+				class="hidden sm:inline-flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-white/80">
+				{{ email }}
+			</span>
+			}
+			}
+
+			<a routerLink="/debts" routerLinkActive="bg-white/10 border-white/20"
+				class="rounded-xl border border-white/10 px-3 py-2 hover:bg-white/5 transition">
+				Deudas
+			</a>
+
+			<ui-button variant="ghost" size="sm" (click)="onLogout()">Salir</ui-button>
+		</nav>
+	</div>
+</header>

@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
 	selector: 'ui-skeleton',
+	standalone: true,
 	template: `
     <span
       class="block animate-pulse rounded-xl bg-white/10"

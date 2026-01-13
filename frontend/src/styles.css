@@ -1,3 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
 
-@import "tailwindcss";
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased;
+  }
+}
+
+@layer components {
+  .page {
+    @apply container mx-auto max-w-5xl px-4 py-6;
+  }
+  .section-title {
+    @apply text-xl font-semibold;
+  }
+  .muted {
+    @apply text-sm text-white/70;
+  }
+
+  .label {
+    @apply text-sm text-white/80;
+  }
+  .help-error {
+    @apply text-xs text-red-300;
+  }
+}

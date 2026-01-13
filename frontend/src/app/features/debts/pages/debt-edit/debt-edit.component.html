@@ -1,82 +1,76 @@
-<section class="space-y-4">
-	<div class="flex items-center justify-between">
-		<a routerLink="/debts" class="text-sm underline opacity-80">← Volver</a>
-	</div>
-
-	<h1 class="text-xl font-semibold">Editar deuda</h1>
+<section class="page space-y-4">
+	@if (vm$ | async; as vm) {
+	<ui-page-header title="Editar deuda" subtitle="Actualiza la información del acreedor y el monto.">
+		<div actions>
+			<ui-button variant="ghost" size="sm" type="button" (click)="goDetail(vm.id)">← Volver</ui-button>
+		</div>
+	</ui-page-header>
 
 	@if (saveError) {
-	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
-		{{ saveError }}
-	</div>
+	<ui-alert tone="danger" [message]="saveError" />
 	}
 
-	@if (vm$ | async; as vm) {
 	@if (vm.loading) {
-	<div class="rounded-2xl border border-white/10 p-4 space-y-3">
-		<ui-skeleton [width]="220" [height]="18" />
-		<ui-skeleton [width]="320" />
-		<ui-skeleton [width]="260" />
-		<div class="flex gap-2 pt-2">
-			<ui-skeleton [width]="110" [height]="34" />
-			<ui-skeleton [width]="110" [height]="34" />
+	<ui-card>
+		<div class="space-y-3">
+			<ui-skeleton [width]="220" [height]="18" />
+			<ui-skeleton [width]="320" />
+			<ui-skeleton [width]="260" />
+			<div class="flex gap-2 pt-2">
+				<ui-skeleton [width]="110" [height]="34" />
+				<ui-skeleton [width]="110" [height]="34" />
+			</div>
 		</div>
-	</div>
+	</ui-card>
 	} @else {
 	@if (vm.error) {
-	<div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
-		{{ vm.error }}
-	</div>
+	<ui-alert tone="danger" [message]="vm.error" />
 	} @else {
 	@if (!vm.debt) {
-	<div class="rounded-2xl border border-white/10 p-4 opacity-80">
-		No se encontró la deuda.
-	</div>
+	<ui-alert tone="info" message="No se encontró la deuda." />
 	} @else {
-
 	@if (vm.debt.status === 'PAID') {
-	<div class="rounded-2xl border border-white/10 p-4 text-sm opacity-80">
-		Esta deuda ya está pagada ✅ (no se puede modificar)
-	</div>
+	<ui-alert tone="warning" message="Esta deuda ya está pagada ✅ (no se puede modificar)" />
 	}
 
-	<form class="space-y-4 rounded-2xl border border-white/10 p-4" [formGroup]="form"
-		(ngSubmit)="submit(vm.id, vm.debt)">
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Nombre del acreedor</label>
-			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
-				formControlName="creditorName" />
-		</div>
+	<ui-card>
+		<form class="space-y-4" [formGroup]="form" (ngSubmit)="submit(vm.id, vm.debt)">
+			<ui-form-field label="Nombre del acreedor" [required]="true"
+				[error]="form.controls.creditorName.touched && form.controls.creditorName.invalid ? 'Este campo es requerido' : null">
+				<ui-input formControlName="creditorName" />
+			</ui-form-field>
 
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Email del acreedor</label>
-			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none" type="email"
-				formControlName="creditorEmail" />
-		</div>
+			<div class="grid gap-4 sm:grid-cols-2">
+				<ui-form-field label="Email del acreedor" [required]="true"
+					[error]="form.controls.creditorEmail.touched && form.controls.creditorEmail.invalid ? 'Email inválido' : null">
+					<ui-input type="email" formControlName="creditorEmail" autocomplete="email" />
+				</ui-form-field>
 
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Teléfono del acreedor</label>
-			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none"
-				formControlName="creditorPhone" />
-		</div>
+				<ui-form-field label="Teléfono del acreedor" [required]="true"
+					[error]="form.controls.creditorPhone.touched && form.controls.creditorPhone.invalid ? 'Este campo es requerido' : null">
+					<ui-input formControlName="creditorPhone" />
+				</ui-form-field>
+			</div>
 
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Monto</label>
-			<input class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none" type="number"
-				min="0.01" step="0.01" formControlName="amount" />
-		</div>
+			<ui-form-field label="Monto" [required]="true"
+				[error]="form.controls.amount.touched && form.controls.amount.invalid ? 'Monto debe ser mayor a 0' : null">
+				<ui-input type="number" formControlName="amount" [min]="0.01" [step]="0.01" />
+			</ui-form-field>
 
-		<div class="space-y-1">
-			<label class="text-sm opacity-80">Descripción</label>
-			<textarea class="w-full rounded-xl border border-white/10 bg-transparent p-2 outline-none" rows="3"
-				formControlName="description"></textarea>
-		</div>
+			<ui-form-field label="Descripción" [hint]="'Opcional'">
+				<ui-textarea [rows]="3" formControlName="description" />
+			</ui-form-field>
 
-		<button class="rounded-xl bg-white/10 px-4 py-2 hover:bg-white/15 disabled:opacity-50"
-			[disabled]="saving || vm.debt.status === 'PAID' || form.invalid" type="submit">
-			@if (saving) { Guardando... } @else { Guardar cambios }
-		</button>
-	</form>
+			<div class="flex flex-wrap gap-2 pt-2">
+				<ui-button variant="soft" type="submit"
+					[disabled]="saving || vm.debt.status === 'PAID' || form.invalid">
+					@if (saving) { Guardando... } @else { Guardar cambios }
+				</ui-button>
+
+				<ui-button variant="ghost" type="button" (click)="goDetail(vm.id)">Cancelar</ui-button>
+			</div>
+		</form>
+	</ui-card>
 	}
 	}
 	}

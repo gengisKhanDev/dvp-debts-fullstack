@@ -1,0 +1,11 @@
+<div [class]="boxClass">
+	@if (title) {
+	<div class="font-semibold">{{ title }}</div>
+	}
+
+	@if (message) {
+	<div class="mt-1 opacity-90">{{ message }}</div>
+	} @else {
+	<ng-content />
+	}
+</div>

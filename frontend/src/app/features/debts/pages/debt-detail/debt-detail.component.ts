@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
 	Subject,
 	catchError,
@@ -16,7 +16,12 @@ import {
 
 import { DebtsApiService } from '../../data-access/debts-api.service';
 import type { Debt } from '../../models/debt.models';
+
 import { SkeletonComponent } from '../../../../shared/ui/atoms/skeleton/skeleton.component';
+import { CardComponent } from '../../../../shared/ui/atoms/card/card.component';
+import { AlertComponent } from '../../../../shared/ui/atoms/alert/alert.component';
+import { ButtonComponent } from '../../../../shared/ui/atoms/button/button.component';
+import { BadgeComponent } from '../../../../shared/ui/atoms/badge/badge.component';
 
 type Vm =
 	| { loading: true; id: string; debt: null; error: null }
@@ -24,11 +29,10 @@ type Vm =
 
 @Component({
 	selector: 'app-debt-detail',
-	imports: [AsyncPipe, RouterLink, SkeletonComponent],
+	imports: [AsyncPipe, SkeletonComponent, CardComponent, AlertComponent, ButtonComponent, BadgeComponent],
 	templateUrl: './debt-detail.component.html',
 })
 export class DebtDetailComponent {
-	// ✅ primero inyecta (así no dependes del constructor)
 	private readonly api = inject(DebtsApiService);
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
@@ -38,7 +42,6 @@ export class DebtDetailComponent {
 	action: 'pay' | 'delete' | null = null;
 	actionError: string | null = null;
 
-	// ✅ ahora sí puedes usar route sin “used before init”
 	readonly id$ = this.route.paramMap.pipe(
 		map((pm) => pm.get('id')),
 		filter((id): id is string => !!id),
@@ -66,6 +69,14 @@ export class DebtDetailComponent {
 			),
 		),
 	);
+
+	back(): void {
+		this.router.navigateByUrl('/debts');
+	}
+
+	edit(id: string): void {
+		this.router.navigate(['/debts', id, 'edit']);
+	}
 
 	reload(): void {
 		this.refresh$.next();
